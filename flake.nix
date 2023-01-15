@@ -15,7 +15,10 @@
 
           runtime-example = prev.expidus.runtime-example.overrideAttrs (old: {
             inherit (pkgs.expidus) runtime;
-            src = pkgs.expidus.runtime;
+            src = old.src.overrideAttrs (old: {
+              src = "${pkgs.expidus.runtime}/example";
+            });
+            vendorSha256 = "sha256-qOxKTrHRPO0LHMI8gdwUGFLBrjnhymImhVs7djWi2sA=";
           });
         };
       };
