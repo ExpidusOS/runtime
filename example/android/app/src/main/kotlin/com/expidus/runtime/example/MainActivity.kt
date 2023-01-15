@@ -1,4 +1,4 @@
-package com.expidus.expidus_runtime_example
+package com.expidus.runtime.example
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -1,4 +1,4 @@
-group 'com.expidus.expidus_runtime'
+group 'com.expidus.runtime'
 version '1.0-SNAPSHOT'
 
 buildscript {
@@ -10,7 +10,6 @@ buildscript {
 
     dependencies {
         classpath 'com.android.tools.build:gradle:7.1.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
@@ -27,17 +26,17 @@ apply plugin: 'kotlin-android'
 android {
     compileSdkVersion 31
 
+    ndkVersion "32.1.6352462"
+
+    externalNativeBuild {
+      cmake {
+        path "../CMakeLists.txt"
+      }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    kotlinOptions {
-        jvmTarget = '1.8'
-    }
-
-    sourceSets {
-        main.java.srcDirs += 'src/main/kotlin'
     }
 
     defaultConfig {

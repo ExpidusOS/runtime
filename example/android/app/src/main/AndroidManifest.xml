@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.expidus.expidus_runtime_example">
+    package="com.expidus.runtime.example">
    <application
         android:label="expidus_runtime_example"
         android:name="${applicationName}"

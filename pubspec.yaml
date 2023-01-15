@@ -13,8 +13,11 @@ dependencies:
   flutter_web_plugins:
     sdk: flutter
   plugin_platform_interface: ^2.0.2
+  ffi: ^2.0.1
 
 dev_dependencies:
+  ffi: ^2.0.1
+  ffigen: ^6.0.1
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
@@ -37,17 +40,14 @@ flutter:
   plugin:
     platforms:
       android:
-        package: com.expidus.expidus_runtime
-        pluginClass: ExpidusRuntimePlugin
+        ffiPlugin: true
       linux:
-        pluginClass: ExpidusRuntimePlugin
-      macos:
-        pluginClass: ExpidusRuntimePlugin
+        ffiPlugin: true
       windows:
-        pluginClass: ExpidusRuntimePluginCApi
+        ffiPlugin: true
       web:
-        pluginClass: ExpidusRuntimeWeb
-        fileName: expidus_runtime_web.dart
+        pluginClass: ExpidusWebPlatform
+        fileName: platforms/web.dart
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:
