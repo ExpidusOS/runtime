@@ -60,9 +60,13 @@
           default = pkgs.mkShell { 
             name = "${pkgs.expidus.runtime.name}-shell";
 
+            inherit (pkgs.expidus.runtime-example) LD_LIBRARY_PATH;
+
             packages = with pkgs.expidus; [
               runtime.buildInputs
               runtime.nativeBuildInputs
+              runtime-example.buildInputs
+              runtime-example.nativeBuildInputs
               ffigen
             ];
           };
