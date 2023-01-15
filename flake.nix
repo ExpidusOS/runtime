@@ -11,13 +11,11 @@
           runtime = prev.expidus.runtime.overrideAttrs (old: {
             version = self.shortRev or "dirty";
             src = self;
-            nativeBuildInputs = old.nativeBuildInputs
-              ++ (with pkgs; [
-                pkg-config cmake ninja
-                llvmPackages_14.clang
-                llvmPackages_14.llvm
-              ]);
-            buildInputs = old.buildInputs ++ (with pkgs; [ gtk3 libepoxy ]);
+          });
+
+          runtime-example = prev.expidus.runtime-example.overrideAttrs (old: {
+            inherit (pkgs.expidus) runtime;
+            src = pkgs.expidus.runtime;
           });
         };
       };
@@ -34,13 +32,7 @@
           pkgs = legacyPackages.${system};
         in {
           default = pkgs.expidus.runtime;
-
-          example = pkgs.expidus.buildPackage {
-            exec = "expidus_runtime_example";
-            pname = "expidus-runtime-example";
-            inherit (pkgs.expidus.runtime) version;
-            src = "${self.outPath}/example";
-          };
+          example = pkgs.expidus.runtime-example;
         });
 
       devShells = expidus.system.default.forAllSystems (system: localSystem:
