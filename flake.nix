@@ -10,7 +10,7 @@
         expidus = prev.expidus // {
           runtime = prev.expidus.runtime.overrideAttrs (old: {
             version = self.shortRev or "dirty";
-            src = self;
+            src = cleanSource self;
           });
 
           runtime-example = prev.expidus.runtime-example.overrideAttrs (old: {
