@@ -10,24 +10,26 @@
         expidus = prev.expidus // {
           runtime = prev.expidus.runtime.overrideAttrs (old: {
             version = self.shortRev or "dirty";
-            src = cleanSourceWith {
-              filter = name: type:
-                let
-                  baseName = baseNameOf (toString name);
-                in baseName != "flake.nix" && baseName != "flake.lock";
-              src = cleanSource self;
-            };
+            src = cleanSource self;
           });
 
-          runtime-example = prev.expidus.runtime-example.overrideAttrs (old: {
-            inherit (pkgs.expidus) runtime;
+          runtime-example = prev.expidus.runtime-example.overrideAttrs (old:
+            let
+              vendorSha256 = "sha256-+B/cm5L9uf8Y7sO+MkdBCcpMi35SsCndi5pDigtKThs=";
+            in {
+              inherit (pkgs.expidus) runtime;
 
-            src = old.src.overrideAttrs (old: {
-              src = "${pkgs.expidus.runtime}/example";
+              src = old.src.overrideAttrs (old: {
+                src = "${pkgs.expidus.runtime}/example";
+              });
+
+              deps = old.deps.overrideAttrs (old: {
+                inherit vendorSha256;
+                outputHash = vendorSha256;
+              });
+
+              inherit vendorSha256;
             });
-
-            vendorSha256 = null;
-          });
         };
       };
 
