@@ -19,12 +19,7 @@
             };
           });
 
-          runtime-example = pkgs.expidus.buildPackage {
-            pname = "expidus-runtime-example";
-            version = self.shortRev or "dirty";
-            src = ./example;
-            vendorSha256 = "sha256-gK7WkV85AiLrVuB/SdzdRMVT8okTbGvkQdVkSbFDImE=";
-          };
+          runtime-example = import ./example/default.nix { inherit pkgs; };
         };
       };
 
