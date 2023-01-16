@@ -16,3 +16,5 @@ preamble: |
 comments:
   style: any
   length: full
+compiler-opts:
+  - '-I include'

@@ -48,7 +48,6 @@
               name = "ffigen.yaml";
               text = ''
                 ${readFile file}
-                compiler-opts:
                   - '-I${pkgs.clang14Stdenv.cc.libc.dev}/include -I${pkgs.gcc-unwrapped}/lib/gcc/${pkgs.targetPlatform.config}/${pkgs.gcc.version}/include -I${pkgs.clang14Stdenv.cc.libc.dev.linuxHeaders}/include'
                 llvm-path:
                   - ${pkgs.llvmPackages_14.llvm}
@@ -75,7 +74,6 @@
               runtime-example.buildInputs
               runtime-example.nativeBuildInputs
               (mkffigen ./ffigen.yaml "ffigen")
-              (mkffigen ./compositor/ffigen.yaml "ffigen-compositor")
             ];
           };
         });
