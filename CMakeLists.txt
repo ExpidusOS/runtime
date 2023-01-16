@@ -9,3 +9,7 @@ set_target_properties(expidus_runtime PROPERTIES
   OUTPUT_NAME "expidus_runtime")
 
 target_compile_definitions(expidus_runtime PUBLIC DART_SHARED_LIB)
+
+if(WLROOTS_FOUND OR XCB_FOUND)
+  add_subdirectory(compositor)
+endif()

@@ -42,22 +42,23 @@
         let
           pkgs = legacyPackages.${system};
 
-          ffigen-config = pkgs.writeTextFile {
-            name = "ffigen.yaml";
-            text = ''
-              ${readFile ./ffigen.yaml}
-              llvm-path:
-                - ${pkgs.llvmPackages_14.llvm}
-                - ${pkgs.llvmPackages_14.llvm.dev}
-                - ${pkgs.llvmPackages_14.llvm.lib}
-                - ${pkgs.llvmPackages_14.libclang}
-                - ${pkgs.llvmPackages_14.libclang.dev}
-                - ${pkgs.llvmPackages_14.libclang.lib}
-            '';
-          };
+          mkffigen-config = file:
+            pkgs.writeTextFile {
+              name = "ffigen.yaml";
+              text = ''
+                ${readFile file}
+                llvm-path:
+                  - ${pkgs.llvmPackages_14.llvm}
+                  - ${pkgs.llvmPackages_14.llvm.dev}
+                  - ${pkgs.llvmPackages_14.llvm.lib}
+                  - ${pkgs.llvmPackages_14.libclang}
+                  - ${pkgs.llvmPackages_14.libclang.dev}
+                  - ${pkgs.llvmPackages_14.libclang.lib}
+              '';
+            };
 
-          ffigen = pkgs.writeShellScriptBin "ffigen" ''
-            flutter pub run ffigen --config ${ffigen-config}
+          mkffigen = file: name: pkgs.writeShellScriptBin name ''
+            flutter pub run ffigen --config ${mkffigen-config file}
           '';
         in {
           default = pkgs.mkShell { 
@@ -70,7 +71,8 @@
               runtime.nativeBuildInputs
               runtime-example.buildInputs
               runtime-example.nativeBuildInputs
-              ffigen
+              (mkffigen ./ffigen.yaml "ffigen")
+              (mkffigen ./compositor/ffigen.yaml "ffigen-compositor")
             ];
           };
         });

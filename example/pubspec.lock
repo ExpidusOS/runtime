@@ -43,6 +43,13 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
+  expidus_runtime_compositor:
+    dependency: transitive
+    description:
+      path: "../compositor"
+      relative: true
+    source: path
+    version: "0.1.0-prealpha"
   fake_async:
     dependency: transitive
     description:
