@@ -10,6 +10,7 @@
         expidus = prev.expidus // {
           runtime = prev.expidus.runtime.overrideAttrs (old: {
             version = self.shortRev or "dirty";
+            buildInputs = old.buildInputs ++ (with pkgs; [ libdrm ]);
             src = cleanSourceWith {
               filter = name: type:
                 let
@@ -47,6 +48,8 @@
               name = "ffigen.yaml";
               text = ''
                 ${readFile file}
+                compiler-opts:
+                  - '-I${pkgs.clang14Stdenv.cc.libc.dev}/include -I${pkgs.gcc-unwrapped}/lib/gcc/${pkgs.targetPlatform.config}/${pkgs.gcc.version}/include -I${pkgs.clang14Stdenv.cc.libc.dev.linuxHeaders}/include'
                 llvm-path:
                   - ${pkgs.llvmPackages_14.llvm}
                   - ${pkgs.llvmPackages_14.llvm.dev}

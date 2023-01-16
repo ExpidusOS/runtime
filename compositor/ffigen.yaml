@@ -6,9 +6,12 @@ description: |
 output: 'lib/platforms/native/bindings-gen.dart'
 headers:
   entry-points:
-    - 'include/expidus/runtime.h'
+    - 'include/expidus/runtime/compositor.h'
   include-directives:
-    - 'include/expidus/runtime.h'
+    - 'include/expidus/runtime/compositor.h'
+functions:
+  rename:
+    'expidus_runtime_compositor_(.*)': '$1'
 preamble: |
   // ingore_for_file: always_specify_types
   // ignore_for_file: camel_case_types
