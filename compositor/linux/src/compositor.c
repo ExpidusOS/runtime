@@ -125,6 +125,8 @@ static void expidus_runtime_compositor_activate(GApplication* application) {
     if (result != kSuccess) {
       g_error("Failed to create AOT data");
     }
+  } else {
+    g_debug("Flutter will not be using AOT");
   }
 
   ExpidusRuntimeCompositorRenderer* renderer = expidus_runtime_compositor_backend_get_renderer(self->priv->backend);
@@ -200,4 +202,9 @@ ExpidusRuntimeCompositor* expidus_runtime_compositor_new(const gchar* applicatio
 
 ExpidusRuntimeCompositor* expidus_runtime_compositor_new_with_backend(ExpidusRuntimeCompositorBackend* backend, const gchar* application_id, const gchar* binary_name) {
   return g_object_new(EXPIDUS_RUNTIME_TYPE_COMPOSITOR, "backend", NULL, "application-id", application_id, "binary-name", binary_name, "flags", G_APPLICATION_HANDLES_COMMAND_LINE, NULL);
+}
+
+ExpidusRuntimeCompositorBackend* expidus_runtime_compositor_get_backend(ExpidusRuntimeCompositor* self) {
+  g_return_val_if_fail(EXPIDUS_RUNTIME_IS_COMPOSITOR(self), NULL);
+  return self->priv->backend;
 }

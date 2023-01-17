@@ -17,4 +17,6 @@ struct _ExpidusRuntimeCompositor {
 ExpidusRuntimeCompositor* expidus_runtime_compositor_new(const gchar* application_id, const gchar* binary_name);
 ExpidusRuntimeCompositor* expidus_runtime_compositor_new_with_backend(ExpidusRuntimeCompositorBackend* backend, const gchar* application_id, const gchar* binary_name);
 
+ExpidusRuntimeCompositorBackend* expidus_runtime_compositor_get_backend(ExpidusRuntimeCompositor* self);
+
 G_END_DECLS
