@@ -1,4 +1,4 @@
-if(NOT PARSED_ARG_APPLICATION_ID AND NOT PARSED_ARG_BINARY_NAME AND NOT FLUTTER_MANAGED_DIR)
+if(NOT PARSED_ARGS_APPLICATION_ID AND NOT PARSED_ARGS_BINARY_NAME AND NOT FLUTTER_MANAGED_DIR)
   message(FATAL_ERROR "You must not include \"ExpidusRuntimePackage\" directly, instead you must run it with \"add_expidus_compositor\" or \"add_expidus_application\".")
 endif()
 
@@ -38,4 +38,4 @@ if(WIN32)
   add_definitions(-DUNICODE -D_UNICODE)
 endif()
 
-add_definitions(-DAPPLICATION_ID="${PARSED_ARGS_APPLICATION_ID}" -DBINARY_NAME="${BINARY_NAME}")
+add_definitions(-DAPPLICATION_ID="${PARSED_ARGS_APPLICATION_ID}" -DBINARY_NAME="${PARSED_ARGS_BINARY_NAME}")
