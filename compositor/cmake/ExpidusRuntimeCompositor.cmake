@@ -48,6 +48,7 @@ function(add_expidus_compositor)
   if(UNIX)
     target_link_libraries(${PARSED_ARGS_BINARY_NAME} PRIVATE expidus_runtime_compositor)
     list(APPEND PLUGIN_BUNDLED_LIBRARIES $<TARGET_FILE:expidus_runtime_compositor>)
+    list(APPEND PLUGIN_BUNDLED_LIBRARIES ${expidus_runtime_compositor_bundled_libraries})
 
     foreach(bundled_library ${PLUGIN_BUNDLED_LIBRARIES})
       install(FILES "${bundled_library}"
