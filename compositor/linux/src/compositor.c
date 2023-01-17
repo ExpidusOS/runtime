@@ -12,6 +12,10 @@ enum {
 
 static GParamSpec* obj_properties[N_PROPERTIES] = { NULL };
 
+static void expidus_runtime_compositor_log(const char* tag, const char* message, void* user_data) {
+  g_log("Dart", G_LOG_LEVEL_INFO, "%s: %s", tag, message);
+}
+
 static void expidus_runtime_compositor_constructed(GObject* object) {
   G_OBJECT_CLASS(expidus_runtime_compositor_parent_class)->constructed(object);
 
@@ -39,7 +43,8 @@ static void expidus_runtime_compositor_dispose(GObject* object) {
 static void expidus_runtime_compositor_finalize(GObject* object) {
   ExpidusRuntimeCompositor* self = EXPIDUS_RUNTIME_COMPOSITOR(object);
 
-  g_free(self->priv->binary_name);
+  g_clear_pointer(&self->priv->argv0, g_free);
+  g_clear_pointer(&self->priv->binary_name, g_free);
 
   G_OBJECT_CLASS(expidus_runtime_compositor_parent_class)->finalize(object);
 }
@@ -97,9 +102,70 @@ static void expidus_runtime_compositor_activate(GApplication* application) {
     g_debug("Compositor is using the %s display server backend.", expidus_runtime_compositor_backend_get_name(self->priv->backend));
   }
 
-  // TODO: initialize and start flutter
+  const gchar* dir = g_path_get_dirname(self->priv->argv0);
+
+  self->priv->project_args.assets_path = g_build_filename(dir, "data", "flutter_assets", NULL);
+  self->priv->project_args.icu_data_path = g_build_filename(dir, "data", "icudtl.dat", NULL);
+
+  self->priv->flutter_procs.struct_size = sizeof (FlutterEngineProcTable);
+  FlutterEngineResult result = FlutterEngineGetProcAddresses(&self->priv->flutter_procs);
+  if (result != kSuccess) {
+    g_error("Failed to get Flutter proc addresses");
+  }
+
+  if (self->priv->flutter_procs.RunsAOTCompiledDartCode()) {
+    g_debug("Flutter will be using AOT");
+
+    FlutterEngineAOTDataSource aot_source = (FlutterEngineAOTDataSource) {
+      .elf_path = g_build_filename(dir, "lib", "libapp.so", NULL),
+      .type = kFlutterEngineAOTDataSourceTypeElfPath
+    };
+
+    result = FlutterEngineCreateAOTData(&aot_source, &self->priv->project_args.aot_data);
+    if (result != kSuccess) {
+      g_error("Failed to create AOT data");
+    }
+  }
+
+  ExpidusRuntimeCompositorRenderer* renderer = expidus_runtime_compositor_backend_get_renderer(self->priv->backend);
+  g_assert(renderer != NULL);
+
+  FlutterRendererConfig* renderer_config = expidus_runtime_compositor_renderer_get_config(renderer);
+  g_assert(renderer_config != NULL);
+
+  self->priv->project_args.log_message_callback = expidus_runtime_compositor_log;
+
+  result = self->priv->flutter_procs.Run(
+    FLUTTER_ENGINE_VERSION,
+    renderer_config,
+    &self->priv->project_args,
+    self,
+    &self->priv->engine
+  );
+  if (result != kSuccess) {
+    g_error("Failed to launch Flutter");
+  }
 
   expidus_runtime_compositor_backend_run(self->priv->backend);
+}
+
+static int expidus_runtime_compositor_command_line(GApplication* application, GApplicationCommandLine* cmdline) {
+  ExpidusRuntimeCompositor* self = EXPIDUS_RUNTIME_COMPOSITOR(application);
+
+  int argc = 0;
+  gchar** argv = g_application_command_line_get_arguments(cmdline, &argc);
+  self->priv->argv0 = g_strdup(argv[0]);
+  self->priv->project_args.command_line_argv = (const char**)g_strdupv(argv + 1);
+  self->priv->project_args.command_line_argc = argc - 1;
+
+  GError* error = NULL;
+  if (!g_application_register(application, NULL, &error)) {
+    g_error("Failed to register: %s", error->message);
+    return FALSE;
+  }
+
+  g_application_activate(application);
+  return 1;
 }
 
 static void expidus_runtime_compositor_class_init(ExpidusRuntimeCompositorClass* klass) {
@@ -113,6 +179,7 @@ static void expidus_runtime_compositor_class_init(ExpidusRuntimeCompositorClass*
   object_class->set_property = expidus_runtime_compositor_set_property;
 
   application_class->activate = expidus_runtime_compositor_activate;
+  application_class->command_line = expidus_runtime_compositor_command_line;
 
   obj_properties[PROP_BINARY_NAME] = g_param_spec_string("binary-name", "Binary name", "The name of the binary being executed", NULL, G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
   obj_properties[PROP_BACKEND] = g_param_spec_object("backend", "Backend", "The display system backend instance", EXPIDUS_RUNTIME_COMPOSITOR_TYPE_BACKEND, G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
@@ -122,13 +189,15 @@ static void expidus_runtime_compositor_class_init(ExpidusRuntimeCompositorClass*
 static void expidus_runtime_compositor_init(ExpidusRuntimeCompositor* self) {
   ExpidusRuntimeCompositorPrivate* priv = expidus_runtime_compositor_get_instance_private(self);
   g_assert(priv != NULL);
+
   self->priv = priv;
+  self->priv->project_args.struct_size = sizeof (FlutterProjectArgs);
 }
 
 ExpidusRuntimeCompositor* expidus_runtime_compositor_new(const gchar* application_id, const gchar* binary_name) {
-  return g_object_new(EXPIDUS_RUNTIME_TYPE_COMPOSITOR, "application-id", application_id, "binary-name", binary_name, NULL);
+  return g_object_new(EXPIDUS_RUNTIME_TYPE_COMPOSITOR, "application-id", application_id, "binary-name", binary_name, "flags", G_APPLICATION_HANDLES_COMMAND_LINE, NULL);
 }
 
 ExpidusRuntimeCompositor* expidus_runtime_compositor_new_with_backend(ExpidusRuntimeCompositorBackend* backend, const gchar* application_id, const gchar* binary_name) {
-  return g_object_new(EXPIDUS_RUNTIME_TYPE_COMPOSITOR, "backend", NULL, "application-id", application_id, "binary-name", binary_name, NULL);
+  return g_object_new(EXPIDUS_RUNTIME_TYPE_COMPOSITOR, "backend", NULL, "application-id", application_id, "binary-name", binary_name, "flags", G_APPLICATION_HANDLES_COMMAND_LINE, NULL);
 }

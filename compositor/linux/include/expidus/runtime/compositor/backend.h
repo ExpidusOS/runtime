@@ -2,7 +2,7 @@
 
 #include <glib-object.h>
 #include <gio/gio.h>
-#include <flutter_embedder.h>
+#include <expidus/runtime/compositor/renderer.h>
 
 G_BEGIN_DECLS
 
@@ -13,7 +13,7 @@ struct _ExpidusRuntimeCompositorBackendClass {
   GObjectClass parent_class;
 
   const gchar* (*get_name)(ExpidusRuntimeCompositorBackend* self);
-  FlutterRendererConfig* (*get_renderer_config)(ExpidusRuntimeCompositorBackend* self);
+  ExpidusRuntimeCompositorRenderer* (*get_renderer)(ExpidusRuntimeCompositorBackend* self);
   void (*run)(ExpidusRuntimeCompositorBackend* self);
 
   gpointer padding[12];
@@ -23,6 +23,7 @@ ExpidusRuntimeCompositorBackend* expidus_runtime_compositor_backend_new_auto(GCa
 ExpidusRuntimeCompositorBackend* expidus_runtime_compositor_backend_new(const gchar* name, GCancellable* cancellable, GError** error);
 
 const gchar* expidus_runtime_compositor_backend_get_name(ExpidusRuntimeCompositorBackend* self);
+ExpidusRuntimeCompositorRenderer* expidus_runtime_compositor_backend_get_renderer(ExpidusRuntimeCompositorBackend* self);
 void expidus_runtime_compositor_backend_run(ExpidusRuntimeCompositorBackend* self);
 
 G_END_DECLS

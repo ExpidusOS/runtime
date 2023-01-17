@@ -10,7 +10,7 @@
         expidus = prev.expidus // {
           runtime = prev.expidus.runtime.overrideAttrs (old: {
             version = self.shortRev or "dirty";
-            buildInputs = old.buildInputs ++ (with pkgs; [ libdrm udev ] ++ libdrm.buildInputs);
+            buildInputs = old.buildInputs ++ (with pkgs; [ libdrm udev vulkan-loader ] ++ libdrm.buildInputs);
             src = cleanSourceWith {
               filter = name: type:
                 let
