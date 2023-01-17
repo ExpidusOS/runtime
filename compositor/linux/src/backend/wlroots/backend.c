@@ -3,16 +3,13 @@
 #include <wlr/util/log.h>
 #include "backend-priv.h"
 #include "error-priv.h"
+#include "output-priv.h"
 
 static void g_initable_interface_init(GInitableIface* interface);
 
 G_DEFINE_TYPE_WITH_CODE(ExpidusRuntimeCompositorWlrootsBackend, expidus_runtime_compositor_wlroots_backend, EXPIDUS_RUNTIME_COMPOSITOR_TYPE_BACKEND,
     G_ADD_PRIVATE(ExpidusRuntimeCompositorWlrootsBackend)
     G_IMPLEMENT_INTERFACE(G_TYPE_INITABLE, g_initable_interface_init));
-
-static void expidus_runtime_compositor_wlroots_backend_output_new(struct wl_listener* listener, void* data) {
-  // TODO: move to output.c
-}
 
 static void expidus_runtime_compositor_wlroots_backend_xdg_surface_new(struct wl_listener* listener, void* data) {
   // TODO: move to surface.c
@@ -26,12 +23,12 @@ static gboolean expidus_runtime_compositor_wlroots_backend_renderered_init(Expid
   wlr_data_device_manager_create(self->priv->display);
 
   self->priv->output_layout = wlr_output_layout_create();
-  self->priv->events.output_new.notify = expidus_runtime_compositor_wlroots_backend_output_new;
-  wl_signal_add(&self->priv->backend->events.new_output, &self->priv->events.output_new);
+  self->priv->output_new.notify = expidus_runtime_compositor_wlroots_output_new_cb;
+  wl_signal_add(&self->priv->backend->events.new_output, &self->priv->output_new);
 
   self->priv->xdg_shell = wlr_xdg_shell_create(self->priv->display);
-  self->priv->events.xdg_surface_new.notify = expidus_runtime_compositor_wlroots_backend_xdg_surface_new;
-  wl_signal_add(&self->priv->xdg_shell->events.new_surface, &self->priv->events.xdg_surface_new);
+  self->priv->xdg_surface_new.notify = expidus_runtime_compositor_wlroots_backend_xdg_surface_new;
+  wl_signal_add(&self->priv->xdg_shell->events.new_surface, &self->priv->xdg_surface_new);
 
   // TODO: init input
  
@@ -41,6 +38,8 @@ static gboolean expidus_runtime_compositor_wlroots_backend_renderered_init(Expid
   }
   
   g_debug("Wayland socket is \"%s\"", self->priv->socket);
+
+  self->priv->presentation = wlr_presentation_create(self->priv->display, self->priv->backend);
 
   if (!wlr_backend_start(self->priv->backend)) {
     expidus_runtime_compositor_wlroots_error_set_wayland(error, "failed to start the backend");
@@ -103,6 +102,7 @@ static void expidus_runtime_compositor_wlroots_backend_run(ExpidusRuntimeComposi
   ExpidusRuntimeCompositorWlrootsBackend* self = EXPIDUS_RUNTIME_COMPOSITOR_WLROOTS_BACKEND(backend);
   g_assert(self != NULL);
 
+  g_debug("Running Wayland");
   wl_display_run(self->priv->display);
 }
 
@@ -178,6 +178,7 @@ static void expidus_runtime_compositor_wlroots_backend_init(ExpidusRuntimeCompos
   ExpidusRuntimeCompositorWlrootsBackendPrivate* priv = expidus_runtime_compositor_wlroots_backend_get_instance_private(self);
   g_assert(priv != NULL);
   self->priv = priv;
+  priv->self = EXPIDUS_RUNTIME_COMPOSITOR_BACKEND(self);
 
   wlr_log_init(WLR_DEBUG, expidus_runtime_compositor_wlroots_backend_log);
 }
