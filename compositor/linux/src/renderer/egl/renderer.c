@@ -91,6 +91,11 @@ static FlutterRendererConfig* expidus_runtime_compositor_egl_renderer_get_config
   return &self->priv->config;
 }
 
+static FlutterCompositor* expidus_runtime_compositor_egl_renderer_get_compositor(ExpidusRuntimeCompositorRenderer* renderer) {
+  ExpidusRuntimeCompositorEglRenderer* self = EXPIDUS_RUNTIME_COMPOSITOR_EGL_RENDERER(renderer);
+  return &self->priv->compositor;
+}
+
 static void expidus_runtime_compositor_egl_renderer_constructed(GObject* object) {
   G_OBJECT_CLASS(expidus_runtime_compositor_egl_renderer_parent_class)->constructed(object);
 
@@ -155,6 +160,7 @@ static void expidus_runtime_compositor_egl_renderer_class_init(ExpidusRuntimeCom
   GObjectClass* object_class = G_OBJECT_CLASS(klass);
 
   renderer_class->get_config = expidus_runtime_compositor_egl_renderer_get_config;
+  renderer_class->get_compositor = expidus_runtime_compositor_egl_renderer_get_compositor;
 
   object_class->constructed = expidus_runtime_compositor_egl_renderer_constructed;
   object_class->get_property = expidus_runtime_compositor_egl_renderer_get_property;
@@ -170,6 +176,7 @@ static void expidus_runtime_compositor_egl_renderer_init(ExpidusRuntimeComposito
   g_assert(priv != NULL);
 
   self->priv = priv;
+
   self->priv->config.type = kOpenGL;
   self->priv->config.open_gl.struct_size = sizeof (FlutterOpenGLRendererConfig);
   self->priv->config.open_gl.make_current = expidus_runtime_compositor_egl_renderer_make_current;
@@ -179,6 +186,10 @@ static void expidus_runtime_compositor_egl_renderer_init(ExpidusRuntimeComposito
   self->priv->config.open_gl.gl_proc_resolver = expidus_runtime_compositor_egl_renderer_gl_proc_resolver;
   self->priv->config.open_gl.fbo_with_frame_info_callback = expidus_runtime_compositor_egl_renderer_fbo_with_frame_info_callback;
   self->priv->config.open_gl.present_with_info = expidus_runtime_compositor_egl_renderer_present_with_info;
+
+  self->priv->compositor.struct_size = sizeof (FlutterCompositor);
+  self->priv->compositor.user_data = self;
+  self->priv->compositor.avoid_backing_store_cache = TRUE;
 }
 
 ExpidusRuntimeCompositorRenderer* expidus_runtime_compositor_egl_renderer_new(EGLDisplay display, EGLContext context) {

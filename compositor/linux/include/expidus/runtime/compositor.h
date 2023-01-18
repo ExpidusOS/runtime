@@ -18,5 +18,8 @@ ExpidusRuntimeCompositor* expidus_runtime_compositor_new(const gchar* applicatio
 ExpidusRuntimeCompositor* expidus_runtime_compositor_new_with_backend(ExpidusRuntimeCompositorBackend* backend, const gchar* application_id, const gchar* binary_name);
 
 ExpidusRuntimeCompositorBackend* expidus_runtime_compositor_get_backend(ExpidusRuntimeCompositor* self);
+FlutterEngine* expidus_runtime_compositor_get_engine(ExpidusRuntimeCompositor* self);
+
+FlutterEngineResult expidus_runtime_compositor_backend_display_update(ExpidusRuntimeCompositor* self, FlutterEngineDisplaysUpdateType update_type);
 
 G_END_DECLS

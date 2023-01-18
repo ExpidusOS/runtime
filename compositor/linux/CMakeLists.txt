@@ -129,7 +129,7 @@ if(XCB_FOUND)
   set(EXTRA_SOURCES "${EXTRA_SOURCES}" "src/backend/xcb/backend.c")
 endif()
 
-add_library(${PLUGIN_NAME} SHARED "src/backend.c" "src/compositor.c" "src/output.c" "src/renderer.c" ${EXTRA_SOURCES})
+add_library(${PLUGIN_NAME} SHARED "src/backend.c" "src/compositor.c" "src/output.c" "src/renderer.c" "src/rendering/scene-layer.c" "src/rendering/scene.c" ${EXTRA_SOURCES})
 apply_standard_settings(${PLUGIN_NAME})
 target_include_directories(${PLUGIN_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_BINARY_DIR}")
 target_compile_options(${PLUGIN_NAME} PUBLIC "${CFLAGS}")

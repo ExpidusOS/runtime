@@ -4,6 +4,12 @@
 
 typedef struct _ExpidusRuntimeCompositorWlrootsOutputPrivate {
   struct wlr_output* value;
+  FlutterEngineDisplay engine;
+
+  struct wl_listener frame;
+  struct wl_listener mode;
+  struct wl_listener present;
+
   ExpidusRuntimeCompositorOutput* self;
 } ExpidusRuntimeCompositorWlrootsOutputPrivate;
 

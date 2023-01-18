@@ -1,4 +1,5 @@
 #include <expidus/runtime/compositor.h>
+#include <expidus/runtime/compositor/output.h>
 #include <glib.h>
 #include "compositor-priv.h"
 
@@ -98,6 +99,9 @@ static void expidus_runtime_compositor_activate(GApplication* application) {
   }
 
   g_assert(self->priv->backend != NULL);
+
+  expidus_runtime_compositor_backend_set_compositor(self->priv->backend, self);
+
   if (self->priv->arguments.backend == NULL) {
     g_debug("Compositor is using the %s display server backend.", expidus_runtime_compositor_backend_get_name(self->priv->backend));
   }
@@ -136,16 +140,16 @@ static void expidus_runtime_compositor_activate(GApplication* application) {
   g_assert(renderer_config != NULL);
 
   self->priv->project_args.log_message_callback = expidus_runtime_compositor_log;
+  self->priv->project_args.compositor = expidus_runtime_compositor_renderer_get_compositor(renderer);
 
-  result = self->priv->flutter_procs.Run(
-    FLUTTER_ENGINE_VERSION,
-    renderer_config,
-    &self->priv->project_args,
-    self,
-    &self->priv->engine
-  );
+  result = self->priv->flutter_procs.Run(FLUTTER_ENGINE_VERSION, renderer_config, &self->priv->project_args, self, &self->priv->engine);
   if (result != kSuccess) {
     g_error("Failed to launch Flutter");
+  }
+
+  result = expidus_runtime_compositor_backend_display_update(self, kFlutterEngineDisplaysUpdateTypeStartup);
+  if (result != kSuccess) {
+    g_error("Failed to submit displays to Flutter");
   }
 
   expidus_runtime_compositor_backend_run(self->priv->backend);
@@ -207,4 +211,34 @@ ExpidusRuntimeCompositor* expidus_runtime_compositor_new_with_backend(ExpidusRun
 ExpidusRuntimeCompositorBackend* expidus_runtime_compositor_get_backend(ExpidusRuntimeCompositor* self) {
   g_return_val_if_fail(EXPIDUS_RUNTIME_IS_COMPOSITOR(self), NULL);
   return self->priv->backend;
+}
+
+FlutterEngine* expidus_runtime_compositor_get_engine(ExpidusRuntimeCompositor* self) {
+  g_return_val_if_fail(EXPIDUS_RUNTIME_IS_COMPOSITOR(self), NULL);
+  return &self->priv->engine;
+}
+
+FlutterEngineResult expidus_runtime_compositor_backend_display_update(ExpidusRuntimeCompositor* self, FlutterEngineDisplaysUpdateType update_type) {
+  GList* outputs = expidus_runtime_compositor_backend_get_outputs(self->priv->backend);
+  g_assert(outputs != NULL);
+
+  guint n_outputs = g_list_length(outputs);
+  g_assert(n_outputs > 0);
+
+  FlutterEngineDisplay* displays = g_malloc(sizeof (FlutterEngineDisplay) * n_outputs);
+
+  size_t i = 0;
+  for (GList* item = outputs; item != NULL; item = item->next) {
+    ExpidusRuntimeCompositorOutput* output = EXPIDUS_RUNTIME_COMPOSITOR_OUTPUT(item->data);
+    FlutterEngineDisplay* display = expidus_runtime_compositor_output_get_engine(output);
+    g_assert(display != NULL);
+
+    display->single_display = n_outputs == 0;
+
+    memcpy(&displays[i++], display, sizeof (FlutterEngineDisplay));
+  }
+
+  FlutterEngineResult result = FlutterEngineNotifyDisplayUpdate(self->priv->engine, update_type, displays, n_outputs);
+  g_list_free_full(outputs, g_object_unref);
+  return result;
 }

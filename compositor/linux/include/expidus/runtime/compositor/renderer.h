@@ -12,10 +12,17 @@ struct _ExpidusRuntimeCompositorRendererClass {
   GObjectClass parent_class;
 
   FlutterRendererConfig* (*get_config)(ExpidusRuntimeCompositorRenderer* self);
+  FlutterCompositor* (*get_compositor)(ExpidusRuntimeCompositorRenderer* self);
+  void (*wait_sync)(ExpidusRuntimeCompositorRenderer* self);
+  ExpidusRuntimeCompositorSceneLayer* (*create_scene_layer)(ExpidusRuntimeCompositorRenderer* self);
 
   gpointer padding[12];
 };
 
 FlutterRendererConfig* expidus_runtime_compositor_renderer_get_config(ExpidusRuntimeCompositorRenderer* self);
+FlutterCompositor* expidus_runtime_compositor_renderer_get_compositor(ExpidusRuntimeCompositorRenderer* self);
+void expidus_runtime_compositor_renderer_wait_sync(ExpidusRuntimeCompositorRenderer* self);
+
+ExpidusRuntimeCompositorSceneLayer* expidus_runtime_compositor_renderer_create_scene_layer(ExpidusRuntimeCompositorRenderer* self);
 
 G_END_DECLS

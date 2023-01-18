@@ -4,6 +4,8 @@
 
 typedef struct _ExpidusRuntimeCompositorEglRendererPrivate {
   FlutterRendererConfig config;
+  FlutterCompositor compositor;
+
   EGLDisplay display;
   EGLContext context;
   EGLContext flutter_context;

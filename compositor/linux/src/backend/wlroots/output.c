@@ -14,6 +14,54 @@ enum {
 
 static GParamSpec* obj_properties[N_PROPERTIES] = { NULL };
 
+static FlutterEngineDisplay* expidus_runtime_compositor_wlroots_output_get_engine(ExpidusRuntimeCompositorOutput* output) {
+  ExpidusRuntimeCompositorWlrootsOutput* self = EXPIDUS_RUNTIME_COMPOSITOR_WLROOTS_OUTPUT(output);
+  g_assert(self != NULL);
+
+  if (self->priv->value->current_mode != NULL) {
+    self->priv->engine.refresh_rate = self->priv->value->current_mode->refresh * 1.0;
+  } else {
+    self->priv->engine.refresh_rate = self->priv->value->refresh * 1.0;
+  }
+
+  self->priv->engine.display_id = g_str_hash(self->priv->value->name);
+  return &self->priv->engine;
+}
+
+static void expidus_runtime_compositor_wlroots_output_frame(struct wl_listener* listener, void* user_data) {
+  ExpidusRuntimeCompositorWlrootsOutputPrivate* priv = wl_container_of(listener, priv, frame);
+  ExpidusRuntimeCompositorWlrootsBackend* backend = EXPIDUS_RUNTIME_COMPOSITOR_WLROOTS_BACKEND(expidus_runtime_compositor_output_get_backend(priv->self));
+  g_assert(backend != NULL);
+
+  wlr_output_attach_render(priv->value, NULL);
+  wlr_renderer_begin(backend->priv->wl_renderer, priv->value->width, priv->value->height);
+
+  expidus_runtime_compositor_renderer_wait_sync(backend->priv->renderer);
+  wlr_output_render_software_cursors(priv->value, NULL);
+
+  wlr_renderer_end(backend->priv->wl_renderer);
+  wlr_output_commit(priv->value);
+}
+
+static void expidus_runtime_compositor_wlroots_output_mode(struct wl_listener* listener, void* user_data) {
+}
+
+static void expidus_runtime_compositor_wlroots_output_present(struct wl_listener* listener, void* user_data) {
+}
+
+static void expidus_runtime_compositor_wlroots_output_constructed(GObject* object) {
+  ExpidusRuntimeCompositorWlrootsOutput* self = EXPIDUS_RUNTIME_COMPOSITOR_WLROOTS_OUTPUT(object);
+
+  self->priv->frame.notify = expidus_runtime_compositor_wlroots_output_frame;
+  wl_signal_add(&self->priv->value->events.frame, &self->priv->frame);
+
+  self->priv->mode.notify = expidus_runtime_compositor_wlroots_output_mode;
+  wl_signal_add(&self->priv->value->events.mode, &self->priv->mode);
+
+  self->priv->present.notify = expidus_runtime_compositor_wlroots_output_present;
+  wl_signal_add(&self->priv->value->events.present, &self->priv->present);
+}
+
 static void expidus_runtime_compositor_wlroots_output_get_property(GObject* object, guint prop_id, GValue* value, GParamSpec* pspec) {
   ExpidusRuntimeCompositorWlrootsOutput* self = EXPIDUS_RUNTIME_COMPOSITOR_WLROOTS_OUTPUT(object);
 
@@ -42,9 +90,13 @@ static void expidus_runtime_compositor_wlroots_output_set_property(GObject* obje
 
 static void expidus_runtime_compositor_wlroots_output_class_init(ExpidusRuntimeCompositorWlrootsOutputClass* klass) {
   GObjectClass* object_class = G_OBJECT_CLASS(klass);
+  ExpidusRuntimeCompositorOutputClass* output_class = EXPIDUS_RUNTIME_COMPOSITOR_OUTPUT_CLASS(klass);
 
+  object_class->constructed = expidus_runtime_compositor_wlroots_output_constructed;
   object_class->get_property = expidus_runtime_compositor_wlroots_output_get_property;
   object_class->set_property = expidus_runtime_compositor_wlroots_output_set_property;
+
+  output_class->get_engine = expidus_runtime_compositor_wlroots_output_get_engine;
 
   obj_properties[PROP_VALUE] = g_param_spec_pointer("value", "Value", "An instance of a wlr_output", G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
   g_object_class_install_properties(object_class, N_PROPERTIES, obj_properties);
@@ -53,8 +105,11 @@ static void expidus_runtime_compositor_wlroots_output_class_init(ExpidusRuntimeC
 static void expidus_runtime_compositor_wlroots_output_init(ExpidusRuntimeCompositorWlrootsOutput* self) {
   ExpidusRuntimeCompositorWlrootsOutputPrivate* priv = expidus_runtime_compositor_wlroots_output_get_instance_private(self);
   g_assert(priv != NULL);
+
   self->priv = priv;
   priv->self = EXPIDUS_RUNTIME_COMPOSITOR_OUTPUT(self);
+
+  self->priv->engine.struct_size = sizeof (FlutterEngineDisplay);
 }
 
 ExpidusRuntimeCompositorOutput* expidus_runtime_compositor_wlroots_output_new(ExpidusRuntimeCompositorWlrootsBackend* backend, struct wlr_output* value) {
