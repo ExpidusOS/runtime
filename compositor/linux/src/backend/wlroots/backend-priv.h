@@ -9,6 +9,8 @@
 #include <wlr/types/wlr_data_device.h>
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/types/wlr_presentation_time.h>
+#include <wlr/types/wlr_seat.h>
+#include <wlr/types/wlr_xcursor_manager.h>
 #include <wlr/types/wlr_xdg_shell.h>
 #include <wayland-server-core.h>
 
@@ -31,11 +33,16 @@ typedef struct _ExpidusRuntimeCompositorWlrootsBackendPrivate {
   struct wlr_output_layout* output_layout;
   struct wlr_xdg_shell* xdg_shell;
   struct wlr_presentation* presentation;
+  struct wlr_seat* seat;
+  struct wlr_xcursor_manager* xcursor_mngr;
 
+  struct wl_listener destroy;
   struct wl_listener output_new;
+  struct wl_listener input_new;
   struct wl_listener xdg_surface_new;
 
   GList* outputs;
+  GList* inputs;
 
   const char* socket;
   ExpidusRuntimeCompositorRenderer* renderer;

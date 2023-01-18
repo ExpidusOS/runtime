@@ -98,7 +98,8 @@ if(WLROOTS_FOUND)
 
   set(CFLAGS "${CFLAGS}" -DHAS_WLROOTS=1 -DWLR_USE_UNSTABLE=1)
   set(EXTRA_SOURCES "${EXTRA_SOURCES}" "src/backend/wlroots/backend.c"
-    "src/backend/wlroots/error.c" "src/backend/wlroots/output.c")
+    "src/backend/wlroots/error.c" "src/backend/wlroots/input.c" "src/backend/wlroots/output.c"
+    "src/backend/wlroots/input/keyboard.c" "src/backend/wlroots/input/mouse.c")
 
   function(add_protocol PROTOCOL BASENAME)
     pkg_get_variable(WAYLAND_PROTOCOLS_DIR wayland-protocols pkgdatadir)
@@ -133,8 +134,10 @@ if(XCB_FOUND)
   set(EXTRA_SOURCES "${EXTRA_SOURCES}" "src/backend/xcb/backend.c")
 endif()
 
-add_library(${PLUGIN_NAME} SHARED "src/backend.c" "src/compositor.c" "src/output.c" "src/renderer.c"
-  "src/rendering/scene-layer.c" "src/rendering/scene.c" ${EXTRA_SOURCES})
+add_library(${PLUGIN_NAME} SHARED "src/backend.c" "src/compositor.c" "src/input.c" "src/output.c"
+  "src/input/keyboard.c" "src/input/mouse.c"
+  "src/renderer.c" "src/rendering/scene-layer.c" "src/rendering/scene.c"
+  ${EXTRA_SOURCES})
 apply_standard_settings(${PLUGIN_NAME})
 target_include_directories(${PLUGIN_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_BINARY_DIR}")
 target_compile_options(${PLUGIN_NAME} PUBLIC "${CFLAGS}")

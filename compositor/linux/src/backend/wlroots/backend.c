@@ -3,6 +3,7 @@
 #include <wlr/util/log.h>
 #include "backend-priv.h"
 #include "error-priv.h"
+#include "input-priv.h"
 #include "output-priv.h"
 
 static void g_initable_interface_init(GInitableIface* interface);
@@ -11,6 +12,13 @@ G_DEFINE_TYPE_WITH_CODE(ExpidusRuntimeCompositorWlrootsBackend, expidus_runtime_
     G_ADD_PRIVATE(ExpidusRuntimeCompositorWlrootsBackend)
     G_IMPLEMENT_INTERFACE(G_TYPE_INITABLE, g_initable_interface_init));
 
+static void expidus_runtime_compositor_wlroots_destroy_cb(struct wl_listener* listener, void* data) {
+  ExpidusRuntimeCompositorWlrootsBackendPrivate* backend_priv = wl_container_of(listener, backend_priv, destroy);
+//  ExpidusRuntimeCompositor* compositor = expidus_runtime_compositor_backend_get_compositor(backend_priv->self);
+
+  g_object_run_dispose(backend_priv->self);
+}
+
 static void expidus_runtime_compositor_wlroots_backend_xdg_surface_new(struct wl_listener* listener, void* data) {
   // TODO: move to surface.c
 }
@@ -18,19 +26,28 @@ static void expidus_runtime_compositor_wlroots_backend_xdg_surface_new(struct wl
 static gboolean expidus_runtime_compositor_wlroots_backend_renderered_init(ExpidusRuntimeCompositorWlrootsBackend* self, GCancellable* cancellable, GError** error) {
   wlr_renderer_init_wl_display(self->priv->wl_renderer, self->priv->display);
 
+  self->priv->seat = wlr_seat_create(self->priv->display, "seat0");
+
+  self->priv->xcursor_mngr = wlr_xcursor_manager_create(NULL, 24);
+  wlr_xcursor_manager_load(self->priv->xcursor_mngr, 1);
+
   self->priv->allocator = wlr_allocator_autocreate(self->priv->backend, self->priv->wl_renderer);
   wlr_compositor_create(self->priv->display, self->priv->wl_renderer);
   wlr_data_device_manager_create(self->priv->display);
+
+  self->priv->destroy.notify = expidus_runtime_compositor_wlroots_destroy_cb;
+  wl_signal_add(&self->priv->backend->events.destroy, &self->priv->destroy);
 
   self->priv->output_layout = wlr_output_layout_create();
   self->priv->output_new.notify = expidus_runtime_compositor_wlroots_output_new_cb;
   wl_signal_add(&self->priv->backend->events.new_output, &self->priv->output_new);
 
+  self->priv->input_new.notify = expidus_runtime_compositor_wlroots_input_new_cb;
+  wl_signal_add(&self->priv->backend->events.new_input, &self->priv->input_new);
+
   self->priv->xdg_shell = wlr_xdg_shell_create(self->priv->display);
   self->priv->xdg_surface_new.notify = expidus_runtime_compositor_wlroots_backend_xdg_surface_new;
   wl_signal_add(&self->priv->xdg_shell->events.new_surface, &self->priv->xdg_surface_new);
-
-  // TODO: init input
  
   if ((self->priv->socket = wl_display_add_socket_auto(self->priv->display)) == NULL) {
     expidus_runtime_compositor_wlroots_error_set_wayland(error, "failed to create a socket");

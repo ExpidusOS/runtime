@@ -29,8 +29,10 @@ static void expidus_runtime_compositor_egl_scene_layer_render(ExpidusRuntimeComp
   glActiveTexture(GL_TEXTURE0);
 
   struct PageTexture* pg_texture = self->priv->layer->backing_store->open_gl.texture.user_data;
-  glBindTexture(GL_TEXTURE_2D, pg_texture->texture);
-  glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+  if (pg_texture != NULL) {
+    glBindTexture(GL_TEXTURE_2D, pg_texture->texture);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+  }
 
   glDisableVertexAttribArray(self->priv->renderer->priv->shader->priv->pos_attrib);
   glDisableVertexAttribArray(self->priv->renderer->priv->shader->priv->tex_attrib);

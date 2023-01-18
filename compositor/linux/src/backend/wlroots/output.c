@@ -1,4 +1,5 @@
 #include <expidus/runtime/compositor/backend/wlroots/output.h>
+#include <expidus/runtime/compositor.h>
 #include <wlr/types/wlr_output.h>
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/render/wlr_renderer.h>
@@ -13,6 +14,26 @@ enum {
 };
 
 static GParamSpec* obj_properties[N_PROPERTIES] = { NULL };
+
+static gboolean expidus_runtime_compositor_wlroots_output_compare(ExpidusRuntimeCompositorWlrootsOutput* a, ExpidusRuntimeCompositorWlrootsOutput* b) {
+  return !(a->priv->value == b->priv->value);
+}
+
+static void expidus_runtime_compositor_wlroots_output_destroy(struct wl_listener* listener, void* user_data) {
+  ExpidusRuntimeCompositorWlrootsOutputPrivate* priv = wl_container_of(listener, priv, destroy);
+  ExpidusRuntimeCompositorWlrootsBackend* backend = EXPIDUS_RUNTIME_COMPOSITOR_WLROOTS_BACKEND(expidus_runtime_compositor_output_get_backend(EXPIDUS_RUNTIME_COMPOSITOR_OUTPUT(priv->self)));
+  ExpidusRuntimeCompositor* compositor = expidus_runtime_compositor_backend_get_compositor(EXPIDUS_RUNTIME_COMPOSITOR_BACKEND(backend));
+
+  GList* outputs = backend->priv->outputs;
+  
+  GList* link = g_list_find_custom(outputs, priv->self, (GCompareFunc)expidus_runtime_compositor_wlroots_output_compare);
+  g_assert(link != NULL);
+
+  backend->priv->outputs = g_list_delete_link(outputs, link);
+  
+  expidus_runtime_compositor_backend_display_update(compositor, kFlutterEngineDisplaysUpdateTypeStartup);
+  g_object_unref(priv->self);
+}
 
 static FlutterEngineDisplay* expidus_runtime_compositor_wlroots_output_get_engine(ExpidusRuntimeCompositorOutput* output) {
   ExpidusRuntimeCompositorWlrootsOutput* self = EXPIDUS_RUNTIME_COMPOSITOR_WLROOTS_OUTPUT(output);
@@ -72,6 +93,9 @@ static void expidus_runtime_compositor_wlroots_output_present(struct wl_listener
 
 static void expidus_runtime_compositor_wlroots_output_constructed(GObject* object) {
   ExpidusRuntimeCompositorWlrootsOutput* self = EXPIDUS_RUNTIME_COMPOSITOR_WLROOTS_OUTPUT(object);
+
+  self->priv->destroy.notify = expidus_runtime_compositor_wlroots_output_destroy;
+  wl_signal_add(&self->priv->value->events.destroy, &self->priv->destroy);
 
   self->priv->frame.notify = expidus_runtime_compositor_wlroots_output_frame;
   wl_signal_add(&self->priv->value->events.frame, &self->priv->frame);

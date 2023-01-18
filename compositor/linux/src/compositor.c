@@ -234,27 +234,26 @@ FlutterEngine* expidus_runtime_compositor_get_engine(ExpidusRuntimeCompositor* s
 
 FlutterEngineResult expidus_runtime_compositor_backend_display_update(ExpidusRuntimeCompositor* self, FlutterEngineDisplaysUpdateType update_type) {
   GList* outputs = expidus_runtime_compositor_backend_get_outputs(self->priv->backend);
-  g_assert(outputs != NULL);
-
   guint n_outputs = g_list_length(outputs);
-  g_assert(n_outputs > 0);
 
-  FlutterEngineDisplay* displays = g_malloc(sizeof (FlutterEngineDisplay) * n_outputs);
+  if (n_outputs > 0) {
+    FlutterEngineDisplay* displays = g_malloc(sizeof (FlutterEngineDisplay) * n_outputs);
 
-  size_t i = 0;
-  for (GList* item = outputs; item != NULL; item = item->next) {
-    ExpidusRuntimeCompositorOutput* output = EXPIDUS_RUNTIME_COMPOSITOR_OUTPUT(item->data);
-    FlutterEngineDisplay* display = expidus_runtime_compositor_output_get_engine(output);
-    g_assert(display != NULL);
+    size_t i = 0;
+    for (GList* item = outputs; item != NULL; item = item->next) {
+      ExpidusRuntimeCompositorOutput* output = EXPIDUS_RUNTIME_COMPOSITOR_OUTPUT(item->data);
+      FlutterEngineDisplay* display = expidus_runtime_compositor_output_get_engine(output);
+      g_assert(display != NULL);
 
-    display->single_display = n_outputs == 0;
+      display->single_display = n_outputs == 0;
+      memcpy(&displays[i++], display, sizeof (FlutterEngineDisplay));
+    }
 
-    memcpy(&displays[i++], display, sizeof (FlutterEngineDisplay));
+    FlutterEngineResult result = FlutterEngineNotifyDisplayUpdate(self->priv->engine, update_type, displays, n_outputs);
+    g_list_free_full(outputs, g_object_unref);
+    return result;
   }
-
-  FlutterEngineResult result = FlutterEngineNotifyDisplayUpdate(self->priv->engine, update_type, displays, n_outputs);
-  g_list_free_full(outputs, g_object_unref);
-  return result;
+  return kSuccess;
 }
 
 void expidus_runtime_compositor_scene_layers_init(ExpidusRuntimeCompositor* self, ExpidusRuntimeCompositorScene* scene, const FlutterLayer* layer) {

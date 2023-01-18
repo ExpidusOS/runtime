@@ -27,7 +27,7 @@ static struct PageTexture* page_get_texture(ExpidusRuntimeCompositorEglRenderer*
   for (GList* item = page->unused_textures; item != NULL; item = item->next) {
     struct PageTexture* pg_texture = item->data;
     if (pg_texture->width == width && pg_texture->height == height) {
-      g_list_free(g_list_delete_link(page->unused_textures, item));
+      page->unused_textures = g_list_delete_link(page->unused_textures, item);
       return pg_texture;
     }
   }
