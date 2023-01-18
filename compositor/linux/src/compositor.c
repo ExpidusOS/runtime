@@ -152,6 +152,25 @@ static void expidus_runtime_compositor_activate(GApplication* application) {
     g_error("Failed to submit displays to Flutter");
   }
 
+  GList* outputs = expidus_runtime_compositor_backend_get_outputs(self->priv->backend);
+  g_assert(outputs != NULL);
+
+  guint n_outputs = g_list_length(outputs);
+  g_assert(n_outputs > 0);
+
+  for (GList* item = outputs; item != NULL; item = item->next) {
+    ExpidusRuntimeCompositorOutput* output = EXPIDUS_RUNTIME_COMPOSITOR_OUTPUT(item->data);
+    FlutterWindowMetricsEvent event = {};
+    event.struct_size = sizeof (FlutterWindowMetricsEvent);
+    // TODO: add geometry to outputs
+    event.width = 100;
+    event.height = 100;
+    event.pixel_ratio = 1.0;
+    FlutterEngineSendWindowMetricsEvent(self->priv->engine, &event);
+  }
+
+  g_list_free_full(outputs, g_object_unref);
+
   expidus_runtime_compositor_backend_run(self->priv->backend);
 }
 
