@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glib-object.h>
+#include <expidus/runtime/compositor/backend.h>
 #include <expidus/runtime/compositor/renderer.h>
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
@@ -15,6 +16,6 @@ struct _ExpidusRuntimeCompositorEglRenderer {
   struct _ExpidusRuntimeCompositorEglRendererPrivate* priv;
 };
 
-ExpidusRuntimeCompositorRenderer* expidus_runtime_compositor_egl_renderer_new(EGLDisplay display, EGLContext context);
+ExpidusRuntimeCompositorRenderer* expidus_runtime_compositor_egl_renderer_new(ExpidusRuntimeCompositorBackend* backend, EGLDisplay display, EGLContext context);
 
 G_END_DECLS

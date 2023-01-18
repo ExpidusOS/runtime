@@ -242,3 +242,8 @@ FlutterEngineResult expidus_runtime_compositor_backend_display_update(ExpidusRun
   g_list_free_full(outputs, g_object_unref);
   return result;
 }
+
+void expidus_runtime_compositor_scene_layers_init(ExpidusRuntimeCompositor* self, ExpidusRuntimeCompositorScene* scene, const FlutterLayer* layer) {
+  g_return_if_fail(EXPIDUS_RUNTIME_IS_COMPOSITOR(self));
+  g_return_if_fail(EXPIDUS_RUNTIME_COMPOSITOR_IS_SCENE(scene));
+}

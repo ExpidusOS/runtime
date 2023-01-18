@@ -1,6 +1,7 @@
 #include <expidus/runtime/compositor/rendering/scene-layer.h>
+#include "scene-layer-priv.h"
 
-G_DEFINE_TYPE(ExpidusRuntimeCompositorSceneLayer, expidus_runtime_compositor_scene_layer, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_PRIVATE(ExpidusRuntimeCompositorSceneLayer, expidus_runtime_compositor_scene_layer, G_TYPE_OBJECT);
 
 static void expidus_runtime_compositor_scene_layer_class_init(ExpidusRuntimeCompositorSceneLayerClass* klass) {}
 

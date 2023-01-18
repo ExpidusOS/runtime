@@ -123,13 +123,3 @@ GList* expidus_runtime_compositor_backend_get_outputs(ExpidusRuntimeCompositorBa
   g_return_val_if_fail(klass->get_outputs != NULL, NULL);
   return klass->get_outputs(self);
 }
-
-ExpidusRuntimeCompositorSceneLayer* expidus_runtime_compositor_backend_create_scene_layer(ExpidusRuntimeCompositorBackend* self) {
-  g_return_val_if_fail(EXPIDUS_RUNTIME_COMPOSITOR_IS_BACKEND(self), NULL);
-
-  ExpidusRuntimeCompositorBackendClass* klass = EXPIDUS_RUNTIME_COMPOSITOR_BACKEND_GET_CLASS(self);
-  g_assert(klass != NULL);
-
-  g_return_val_if_fail(klass->create_scene_layer != NULL, NULL);
-  return klass->create_scene_layer(self);
-}

@@ -68,7 +68,8 @@ if(GLES2_FOUND)
 
   set(PLUGIN_LIBS "${PLUGIN_LIBS}" ${LIBGLES2} ${LIBGLES2}.2.1.0)
   set(CFLAGS "${CFLAGS}" -DHAS_GLES2=1)
-  set(EXTRA_SOURCES "${EXTRA_SOURCES}" "src/renderer/egl/renderer.c")
+  set(EXTRA_SOURCES "${EXTRA_SOURCES}" "src/renderer/egl/error.c" "src/renderer/egl/renderer.c"
+    "src/renderer/egl/scene-layer.c" "src/renderer/egl/shader.c")
 endif()
 
 if(VULKAN_FOUND)
@@ -89,12 +90,15 @@ if(WLROOTS_FOUND)
 
   bin_version("${WAYLAND_SERVER_VERSION}" LIBWAYLAND_SERVER_VERSION_REAL)
   set(PLUGIN_LIBS "${PLUGIN_LIBS}" ${LIBWLROOTS} ${LIBWLROOTS}.10)
-  set(PLUGIN_LIBS "${PLUGIN_LIBS}" ${LIBWAYLAND_SERVER} ${LIBWAYLAND_SERVER}.0 ${LIBWAYLAND_SERVER}.${LIBWAYLAND_SERVER_VERSION_REAL})
+  set(PLUGIN_LIBS "${PLUGIN_LIBS}" ${LIBWAYLAND_SERVER} ${LIBWAYLAND_SERVER}.0
+    ${LIBWAYLAND_SERVER}.${LIBWAYLAND_SERVER_VERSION_REAL})
   set(PLUGIN_LIBS "${PLUGIN_LIBS}" ${LIBUDEV} ${LIBUDEV}.1 ${LIBUDEV}.1.7.4)
   set(PLUGIN_LIBS "${PLUGIN_LIBS}" ${LIBPIXMAN} ${LIBPIXMAN}.0 ${LIBPIXMAN}.${PIXMAN_VERSION})
   set(PLUGIN_LIBS "${PLUGIN_LIBS}" ${LIBXKBCOMMON} ${LIBXKBCOMMON}.0 ${LIBXKBCOMMON}.0.0.0)
+
   set(CFLAGS "${CFLAGS}" -DHAS_WLROOTS=1 -DWLR_USE_UNSTABLE=1)
-  set(EXTRA_SOURCES "${EXTRA_SOURCES}" "src/backend/wlroots/backend.c" "src/backend/wlroots/error.c" "src/backend/wlroots/output.c")
+  set(EXTRA_SOURCES "${EXTRA_SOURCES}" "src/backend/wlroots/backend.c"
+    "src/backend/wlroots/error.c" "src/backend/wlroots/output.c")
 
   function(add_protocol PROTOCOL BASENAME)
     pkg_get_variable(WAYLAND_PROTOCOLS_DIR wayland-protocols pkgdatadir)
@@ -129,7 +133,8 @@ if(XCB_FOUND)
   set(EXTRA_SOURCES "${EXTRA_SOURCES}" "src/backend/xcb/backend.c")
 endif()
 
-add_library(${PLUGIN_NAME} SHARED "src/backend.c" "src/compositor.c" "src/output.c" "src/renderer.c" "src/rendering/scene-layer.c" "src/rendering/scene.c" ${EXTRA_SOURCES})
+add_library(${PLUGIN_NAME} SHARED "src/backend.c" "src/compositor.c" "src/output.c" "src/renderer.c"
+  "src/rendering/scene-layer.c" "src/rendering/scene.c" ${EXTRA_SOURCES})
 apply_standard_settings(${PLUGIN_NAME})
 target_include_directories(${PLUGIN_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_BINARY_DIR}")
 target_compile_options(${PLUGIN_NAME} PUBLIC "${CFLAGS}")

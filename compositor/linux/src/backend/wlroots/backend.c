@@ -73,7 +73,7 @@ static gboolean expidus_runtime_compositor_wlroots_backend_initable_init(GInitab
         struct wlr_egl* egl = wlr_gles2_renderer_get_egl(self->priv->wl_renderer);
         g_assert(egl != NULL);
 
-        self->priv->renderer = expidus_runtime_compositor_egl_renderer_new(egl->display, egl->context);
+        self->priv->renderer = expidus_runtime_compositor_egl_renderer_new(EXPIDUS_RUNTIME_COMPOSITOR_BACKEND(self), egl->display, egl->context);
         return expidus_runtime_compositor_wlroots_backend_renderered_init(self, cancellable, error);
       }
     }

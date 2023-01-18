@@ -74,6 +74,7 @@
               runtime-example.buildInputs
               runtime-example.nativeBuildInputs
               (mkffigen ./ffigen.yaml "ffigen")
+              pkgs.gdb
             ];
           };
         });

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glib-object.h>
+#include <flutter_embedder.h>
 
 G_BEGIN_DECLS
 
@@ -11,6 +12,7 @@ struct _ExpidusRuntimeCompositorSceneLayerClass {
   GObjectClass parent_class;
 
   void (*render)(ExpidusRuntimeCompositorSceneLayer* self);
+  void (*clean)(ExpidusRuntimeCompositorSceneLayer* self);
 
   gpointer padding[12];
 };

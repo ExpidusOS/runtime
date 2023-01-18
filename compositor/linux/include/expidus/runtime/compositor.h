@@ -1,6 +1,7 @@
 #pragma once
 
 #include <expidus/runtime/compositor/backend.h>
+#include <expidus/runtime/compositor/rendering/scene.h>
 #include <glib-object.h>
 #include <gio/gio.h>
 
@@ -21,5 +22,6 @@ ExpidusRuntimeCompositorBackend* expidus_runtime_compositor_get_backend(ExpidusR
 FlutterEngine* expidus_runtime_compositor_get_engine(ExpidusRuntimeCompositor* self);
 
 FlutterEngineResult expidus_runtime_compositor_backend_display_update(ExpidusRuntimeCompositor* self, FlutterEngineDisplaysUpdateType update_type);
+void expidus_runtime_compositor_scene_layers_init(ExpidusRuntimeCompositor* self, ExpidusRuntimeCompositorScene* scene, const FlutterLayer* layer);
 
 G_END_DECLS

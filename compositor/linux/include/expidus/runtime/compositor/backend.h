@@ -2,7 +2,6 @@
 
 #include <glib-object.h>
 #include <gio/gio.h>
-#include <expidus/runtime/compositor/rendering/scene-layer.h>
 #include <expidus/runtime/compositor/renderer.h>
 
 G_BEGIN_DECLS
@@ -19,7 +18,6 @@ struct _ExpidusRuntimeCompositorBackendClass {
   ExpidusRuntimeCompositorRenderer* (*get_renderer)(ExpidusRuntimeCompositorBackend* self);
   void (*run)(ExpidusRuntimeCompositorBackend* self);
   GList* (*get_outputs)(ExpidusRuntimeCompositorBackend* self);
-  ExpidusRuntimeCompositorSceneLayer* (*create_scene_layer)(ExpidusRuntimeCompositorBackend* self);
 
   gpointer padding[12];
 };
@@ -35,7 +33,5 @@ ExpidusRuntimeCompositorRenderer* expidus_runtime_compositor_backend_get_rendere
 void expidus_runtime_compositor_backend_run(ExpidusRuntimeCompositorBackend* self);
 
 GList* expidus_runtime_compositor_backend_get_outputs(ExpidusRuntimeCompositorBackend* self);
-
-ExpidusRuntimeCompositorSceneLayer* expidus_runtime_compositor_backend_create_scene_layer(ExpidusRuntimeCompositorBackend* self);
 
 G_END_DECLS
