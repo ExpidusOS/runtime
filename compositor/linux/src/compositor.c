@@ -13,6 +13,11 @@ enum {
 
 static GParamSpec* obj_properties[N_PROPERTIES] = { NULL };
 
+static void expidus_runtime_compositor_vsync_cb(void* data, intptr_t baton) {
+  ExpidusRuntimeCompositor* self = EXPIDUS_RUNTIME_COMPOSITOR(data);
+  atomic_store(&self->priv->vsync_baton, baton);
+}
+
 static void expidus_runtime_compositor_log(const char* tag, const char* message, void* user_data) {
   g_log("Dart", G_LOG_LEVEL_INFO, "%s: %s", tag, message);
 }
@@ -141,6 +146,7 @@ static void expidus_runtime_compositor_activate(GApplication* application) {
 
   self->priv->project_args.log_message_callback = expidus_runtime_compositor_log;
   self->priv->project_args.compositor = expidus_runtime_compositor_renderer_get_compositor(renderer);
+  self->priv->project_args.vsync_callback = expidus_runtime_compositor_vsync_cb;
 
   result = self->priv->flutter_procs.Run(FLUTTER_ENGINE_VERSION, renderer_config, &self->priv->project_args, self, &self->priv->engine);
   if (result != kSuccess) {
@@ -259,4 +265,15 @@ FlutterEngineResult expidus_runtime_compositor_backend_display_update(ExpidusRun
 void expidus_runtime_compositor_scene_layers_init(ExpidusRuntimeCompositor* self, ExpidusRuntimeCompositorScene* scene, const FlutterLayer* layer) {
   g_return_if_fail(EXPIDUS_RUNTIME_IS_COMPOSITOR(self));
   g_return_if_fail(EXPIDUS_RUNTIME_COMPOSITOR_IS_SCENE(scene));
+}
+
+void expidus_runtime_compositor_vsync(ExpidusRuntimeCompositor* self) {
+  g_return_if_fail(EXPIDUS_RUNTIME_IS_COMPOSITOR(self));
+
+  int64_t vsync_baton = self->priv->vsync_baton;
+  self->priv->vsync_baton = 0;
+  if (vsync_baton != 0) {
+    uint64_t curr_time = FlutterEngineGetCurrentTime();
+    FlutterEngineOnVsync(self->priv->engine, vsync_baton, curr_time, curr_time + 16600000);
+  }
 }

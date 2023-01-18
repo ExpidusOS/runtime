@@ -14,6 +14,4 @@ struct _ExpidusRuntimeCompositorEglSceneLayer {
   struct _ExpidusRuntimeCompositorEglSceneLayerPrivate* priv;
 };
 
-ExpidusRuntimeCompositorSceneLayer* expidus_runtime_compositor_egl_scene_layer_new(ExpidusRuntimeCompositorEglRenderer* egl_renderer, const FlutterLayer* layer);
-
 G_END_DECLS

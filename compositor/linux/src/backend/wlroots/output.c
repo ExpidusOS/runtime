@@ -73,6 +73,11 @@ static void expidus_runtime_compositor_wlroots_output_frame(struct wl_listener* 
   ExpidusRuntimeCompositorWlrootsOutputPrivate* priv = wl_container_of(listener, priv, frame);
   ExpidusRuntimeCompositorWlrootsBackend* backend = EXPIDUS_RUNTIME_COMPOSITOR_WLROOTS_BACKEND(expidus_runtime_compositor_output_get_backend(priv->self));
   g_assert(backend != NULL);
+  
+  ExpidusRuntimeCompositor* compositor = expidus_runtime_compositor_backend_get_compositor(EXPIDUS_RUNTIME_COMPOSITOR_BACKEND(backend));
+  g_assert(compositor != NULL);
+
+  expidus_runtime_compositor_vsync(compositor);
 
   wlr_output_attach_render(priv->value, NULL);
   wlr_renderer_begin(backend->priv->wl_renderer, priv->value->width, priv->value->height);

@@ -1,5 +1,4 @@
 #include <expidus/runtime/compositor/renderer/egl/scene-layer.h>
-#include "renderer-priv.h"
 #include "scene-layer-priv.h"
 #include "shader-priv.h"
 
@@ -7,7 +6,7 @@ G_DEFINE_TYPE_WITH_PRIVATE(ExpidusRuntimeCompositorEglSceneLayer, expidus_runtim
 
 enum {
   PROP_RENDERER = 1,
-  PROP_LAYER,
+  PROP_PAGE_TEXTURE,
   N_PROPERTIES,
 };
 
@@ -28,9 +27,8 @@ static void expidus_runtime_compositor_egl_scene_layer_render(ExpidusRuntimeComp
 
   glActiveTexture(GL_TEXTURE0);
 
-  struct PageTexture* pg_texture = self->priv->layer->backing_store->open_gl.texture.user_data;
-  if (pg_texture != NULL) {
-    glBindTexture(GL_TEXTURE_2D, pg_texture->texture);
+  if (self->priv->pg_texture != NULL) {
+    glBindTexture(GL_TEXTURE_2D, self->priv->pg_texture->texture);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
   }
 
@@ -58,8 +56,8 @@ static void expidus_runtime_compositor_egl_scene_layer_get_property(GObject* obj
     case PROP_RENDERER:
       g_value_set_object(value, self->priv->renderer);
       break;
-    case PROP_LAYER:
-      g_value_set_pointer(value, self->priv->layer);
+    case PROP_PAGE_TEXTURE:
+      g_value_set_pointer(value, self->priv->pg_texture);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
@@ -74,8 +72,8 @@ static void expidus_runtime_compositor_egl_scene_layer_set_property(GObject* obj
     case PROP_RENDERER:
       self->priv->renderer = EXPIDUS_RUNTIME_COMPOSITOR_EGL_RENDERER(g_value_dup_object(value));
       break;
-    case PROP_LAYER:
-      self->priv->layer = g_value_get_pointer(value);
+    case PROP_PAGE_TEXTURE:
+      self->priv->pg_texture = g_value_get_pointer(value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
@@ -94,7 +92,7 @@ static void expidus_runtime_compositor_egl_scene_layer_class_init(ExpidusRuntime
   scene_layer_class->render = expidus_runtime_compositor_egl_scene_layer_render;
 
   obj_properties[PROP_RENDERER] = g_param_spec_object("renderer", "Renderer", "The EGL renderer", EXPIDUS_RUNTIME_COMPOSITOR_TYPE_EGL_RENDERER, G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
-  obj_properties[PROP_LAYER] = g_param_spec_pointer("layer", "Layer", "A Flutter backing-store layer", G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
+  obj_properties[PROP_PAGE_TEXTURE] = g_param_spec_pointer("page-texture", "Page Texture", "An EGL renderer page texture", G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
   g_object_class_install_properties(object_class, N_PROPERTIES, obj_properties);
 }
 
@@ -103,6 +101,6 @@ static void expidus_runtime_compositor_egl_scene_layer_init(ExpidusRuntimeCompos
   self->priv = priv;
 }
 
-ExpidusRuntimeCompositorSceneLayer* expidus_runtime_compositor_egl_scene_layer_new(ExpidusRuntimeCompositorEglRenderer* egl_renderer, const FlutterLayer* layer) {
-  return g_object_new(EXPIDUS_RUNTIME_COMPOSITOR_TYPE_EGL_SCENE_LAYER, "renderer", egl_renderer, "layer", layer, NULL);
+ExpidusRuntimeCompositorSceneLayer* expidus_runtime_compositor_egl_scene_layer_new(ExpidusRuntimeCompositorEglRenderer* egl_renderer, const FlutterLayer* layer, struct PageTexture* pg_texture) {
+  return g_object_new(EXPIDUS_RUNTIME_COMPOSITOR_TYPE_EGL_SCENE_LAYER, "renderer", egl_renderer, "layer", layer, "page-texture", pg_texture, NULL);
 }

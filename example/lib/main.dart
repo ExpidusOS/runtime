@@ -43,7 +43,12 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Text('Hello, world'),
+          child: new Row(
+            children: [
+              Text('Hello, world'),
+              CircularProgressIndicator(),
+            ],
+          ),
         ),
       ),
     );

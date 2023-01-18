@@ -21,6 +21,8 @@ struct Page {
 };
 
 typedef struct _ExpidusRuntimeCompositorEglRendererPrivate {
+  pthread_mutex_t mutex;
+
   FlutterRendererConfig config;
   FlutterCompositor compositor;
 

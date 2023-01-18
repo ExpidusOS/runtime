@@ -3,6 +3,5 @@
 #include <expidus/runtime/compositor/rendering/scene-layer.h>
 
 typedef struct _ExpidusRuntimeCompositorSceneLayerPrivate {
-  FlutterPoint offset;
-  FlutterSize size;
+  FlutterLayer* layer;
 } ExpidusRuntimeCompositorSceneLayerPrivate;

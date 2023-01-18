@@ -6,6 +6,7 @@
 #include <GL/glext.h>
 #include "renderer-priv.h"
 #include "shader-priv.h"
+#include "scene-layer-priv.h"
 
 #define GL_BGRA_EXT 0x80E1
 
@@ -190,13 +191,14 @@ static bool expidus_runtime_compositor_egl_renderer_present_layers_callback(cons
   ExpidusRuntimeCompositor* compositor = expidus_runtime_compositor_backend_get_compositor(backend);
   g_assert(compositor != NULL);
 
+  pthread_mutex_lock(&self->priv->mutex);
   expidus_runtime_compositor_scene_clean(self->priv->scene);
 
   for (size_t i = 0; i < n_layers; i++) {
     const FlutterLayer* layer = layers[i];
     
     if (layer->type == kFlutterLayerContentTypeBackingStore) {
-      ExpidusRuntimeCompositorSceneLayer* scene_layer = expidus_runtime_compositor_egl_scene_layer_new(self, layer);
+      ExpidusRuntimeCompositorSceneLayer* scene_layer = expidus_runtime_compositor_egl_scene_layer_new(self, layer, layer->backing_store->user_data);
       expidus_runtime_compositor_scene_add_layer(self->priv->scene, scene_layer);
     }
 
@@ -229,6 +231,8 @@ static bool expidus_runtime_compositor_egl_renderer_present_layers_callback(cons
   } else {
     self->priv->current_page = 0;
   }
+
+  pthread_mutex_unlock(&self->priv->mutex);
   return TRUE;
 }
 
@@ -254,13 +258,20 @@ static void expidus_runtime_compositor_egl_renderer_wait_sync(ExpidusRuntimeComp
 
 static void expidus_runtime_compositor_egl_renderer_render(ExpidusRuntimeCompositorRenderer* renderer) {
   ExpidusRuntimeCompositorEglRenderer* self = EXPIDUS_RUNTIME_COMPOSITOR_EGL_RENDERER(renderer);
+
+  pthread_mutex_lock(&self->priv->mutex);
   expidus_runtime_compositor_scene_render(self->priv->scene);
+  pthread_mutex_unlock(&self->priv->mutex);
 }
 
 static void expidus_runtime_compositor_egl_renderer_constructed(GObject* object) {
   G_OBJECT_CLASS(expidus_runtime_compositor_egl_renderer_parent_class)->constructed(object);
 
   ExpidusRuntimeCompositorEglRenderer* self = EXPIDUS_RUNTIME_COMPOSITOR_EGL_RENDERER(object);
+  
+  if (pthread_mutex_init(&self->priv->mutex, NULL) != 0) {
+    g_error("Failed to initialize mutex on EGL renderer");
+  }
 
   const char* exts = eglQueryString(self->priv->display, EGL_EXTENSIONS);
 
