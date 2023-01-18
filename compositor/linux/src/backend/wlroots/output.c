@@ -32,11 +32,19 @@ static FlutterWindowMetricsEvent expidus_runtime_compositor_wlroots_output_get_w
   ExpidusRuntimeCompositorWlrootsOutput* self = EXPIDUS_RUNTIME_COMPOSITOR_WLROOTS_OUTPUT(output);
   g_assert(self != NULL);
 
+  ExpidusRuntimeCompositorWlrootsBackend* backend = EXPIDUS_RUNTIME_COMPOSITOR_WLROOTS_BACKEND(expidus_runtime_compositor_output_get_backend(output));
+  g_assert(backend != NULL);
+
+  struct wlr_output_layout_output* layout = wlr_output_layout_get(backend->priv->output_layout, self->priv->value);
+  g_assert(layout != NULL);
+
   FlutterWindowMetricsEvent event = {};
   event.struct_size = sizeof (FlutterWindowMetricsEvent);
   event.width = self->priv->value->width;
   event.height = self->priv->value->height;
   event.pixel_ratio = self->priv->value->scale;
+  event.top = layout->y;
+  event.left = layout->x;
   return event;
 }
 
