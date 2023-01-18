@@ -160,12 +160,7 @@ static void expidus_runtime_compositor_activate(GApplication* application) {
 
   for (GList* item = outputs; item != NULL; item = item->next) {
     ExpidusRuntimeCompositorOutput* output = EXPIDUS_RUNTIME_COMPOSITOR_OUTPUT(item->data);
-    FlutterWindowMetricsEvent event = {};
-    event.struct_size = sizeof (FlutterWindowMetricsEvent);
-    // TODO: add geometry to outputs
-    event.width = 100;
-    event.height = 100;
-    event.pixel_ratio = 1.0;
+    FlutterWindowMetricsEvent event = expidus_runtime_compositor_output_get_window_metrics(output);
     FlutterEngineSendWindowMetricsEvent(self->priv->engine, &event);
   }
 

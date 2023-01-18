@@ -68,3 +68,13 @@ FlutterEngineDisplay* expidus_runtime_compositor_output_get_engine(ExpidusRuntim
   g_return_val_if_fail(klass->get_engine != NULL, NULL);
   return klass->get_engine(self);
 }
+
+FlutterWindowMetricsEvent expidus_runtime_compositor_output_get_window_metrics(ExpidusRuntimeCompositorOutput* self) {
+  g_assert(EXPIDUS_RUNTIME_COMPOSITOR_IS_OUTPUT(self));
+
+  ExpidusRuntimeCompositorOutputClass* klass = EXPIDUS_RUNTIME_COMPOSITOR_OUTPUT_GET_CLASS(self);
+  g_assert(klass != NULL);
+
+  g_assert(klass->get_window_metrics != NULL);
+  return klass->get_window_metrics(self);
+}

@@ -13,11 +13,13 @@ struct _ExpidusRuntimeCompositorOutputClass {
   GObjectClass parent_class;
 
   FlutterEngineDisplay* (*get_engine)(ExpidusRuntimeCompositorOutput* self);
+  FlutterWindowMetricsEvent (*get_window_metrics)(ExpidusRuntimeCompositorOutput* self);
 
   gpointer padding[12];
 };
 
 ExpidusRuntimeCompositorBackend* expidus_runtime_compositor_output_get_backend(ExpidusRuntimeCompositorOutput* self);
 FlutterEngineDisplay* expidus_runtime_compositor_output_get_engine(ExpidusRuntimeCompositorOutput* self);
+FlutterWindowMetricsEvent expidus_runtime_compositor_output_get_window_metrics(ExpidusRuntimeCompositorOutput* self);
 
 G_END_DECLS

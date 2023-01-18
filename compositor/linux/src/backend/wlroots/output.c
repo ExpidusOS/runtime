@@ -28,6 +28,18 @@ static FlutterEngineDisplay* expidus_runtime_compositor_wlroots_output_get_engin
   return &self->priv->engine;
 }
 
+static FlutterWindowMetricsEvent expidus_runtime_compositor_wlroots_output_get_window_metrics(ExpidusRuntimeCompositorOutput* output) {
+  ExpidusRuntimeCompositorWlrootsOutput* self = EXPIDUS_RUNTIME_COMPOSITOR_WLROOTS_OUTPUT(output);
+  g_assert(self != NULL);
+
+  FlutterWindowMetricsEvent event = {};
+  event.struct_size = sizeof (FlutterWindowMetricsEvent);
+  event.width = self->priv->value->width;
+  event.height = self->priv->value->height;
+  event.pixel_ratio = self->priv->value->scale;
+  return event;
+}
+
 static void expidus_runtime_compositor_wlroots_output_frame(struct wl_listener* listener, void* user_data) {
   ExpidusRuntimeCompositorWlrootsOutputPrivate* priv = wl_container_of(listener, priv, frame);
   ExpidusRuntimeCompositorWlrootsBackend* backend = EXPIDUS_RUNTIME_COMPOSITOR_WLROOTS_BACKEND(expidus_runtime_compositor_output_get_backend(priv->self));
@@ -98,6 +110,7 @@ static void expidus_runtime_compositor_wlroots_output_class_init(ExpidusRuntimeC
   object_class->set_property = expidus_runtime_compositor_wlroots_output_set_property;
 
   output_class->get_engine = expidus_runtime_compositor_wlroots_output_get_engine;
+  output_class->get_window_metrics = expidus_runtime_compositor_wlroots_output_get_window_metrics;
 
   obj_properties[PROP_VALUE] = g_param_spec_pointer("value", "Value", "An instance of a wlr_output", G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
   g_object_class_install_properties(object_class, N_PROPERTIES, obj_properties);
