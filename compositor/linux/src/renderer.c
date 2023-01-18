@@ -90,6 +90,16 @@ void expidus_runtime_compositor_renderer_wait_sync(ExpidusRuntimeCompositorRende
   if (klass->wait_sync != NULL) klass->wait_sync(self);
 }
 
+void expidus_runtime_compositor_renderer_render(ExpidusRuntimeCompositorRenderer* self) {
+  g_return_if_fail(EXPIDUS_RUNTIME_COMPOSITOR_IS_RENDERER(self));
+
+  ExpidusRuntimeCompositorRendererClass* klass = EXPIDUS_RUNTIME_COMPOSITOR_RENDERER_GET_CLASS(self);
+  g_assert(klass != NULL);
+
+  g_return_if_fail(klass->render != NULL);
+  klass->render(self);
+}
+
 struct _ExpidusRuntimeCompositorBackend* expidus_runtime_compositor_renderer_get_backend(ExpidusRuntimeCompositorRenderer* self) {
   g_return_val_if_fail(EXPIDUS_RUNTIME_COMPOSITOR_IS_RENDERER(self), NULL);
 

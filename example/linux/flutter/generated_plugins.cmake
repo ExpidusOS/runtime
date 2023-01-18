@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  expidus_runtime_compositor
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

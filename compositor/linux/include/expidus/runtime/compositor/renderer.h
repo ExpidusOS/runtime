@@ -16,6 +16,7 @@ struct _ExpidusRuntimeCompositorRendererClass {
   FlutterRendererConfig* (*get_config)(ExpidusRuntimeCompositorRenderer* self);
   FlutterCompositor* (*get_compositor)(ExpidusRuntimeCompositorRenderer* self);
   void (*wait_sync)(ExpidusRuntimeCompositorRenderer* self);
+  void (*render)(ExpidusRuntimeCompositorRenderer* self);
 
   gpointer padding[12];
 };
@@ -23,6 +24,7 @@ struct _ExpidusRuntimeCompositorRendererClass {
 FlutterRendererConfig* expidus_runtime_compositor_renderer_get_config(ExpidusRuntimeCompositorRenderer* self);
 FlutterCompositor* expidus_runtime_compositor_renderer_get_compositor(ExpidusRuntimeCompositorRenderer* self);
 void expidus_runtime_compositor_renderer_wait_sync(ExpidusRuntimeCompositorRenderer* self);
+void expidus_runtime_compositor_renderer_render(ExpidusRuntimeCompositorRenderer* self);
 struct _ExpidusRuntimeCompositorBackend* expidus_runtime_compositor_renderer_get_backend(ExpidusRuntimeCompositorRenderer* self);
 
 G_END_DECLS

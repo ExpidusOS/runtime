@@ -252,6 +252,11 @@ static void expidus_runtime_compositor_egl_renderer_wait_sync(ExpidusRuntimeComp
   }
 }
 
+static void expidus_runtime_compositor_egl_renderer_render(ExpidusRuntimeCompositorRenderer* renderer) {
+  ExpidusRuntimeCompositorEglRenderer* self = EXPIDUS_RUNTIME_COMPOSITOR_EGL_RENDERER(renderer);
+  expidus_runtime_compositor_scene_render(self->priv->scene);
+}
+
 static void expidus_runtime_compositor_egl_renderer_constructed(GObject* object) {
   G_OBJECT_CLASS(expidus_runtime_compositor_egl_renderer_parent_class)->constructed(object);
 
@@ -369,6 +374,7 @@ static void expidus_runtime_compositor_egl_renderer_class_init(ExpidusRuntimeCom
   renderer_class->get_config = expidus_runtime_compositor_egl_renderer_get_config;
   renderer_class->get_compositor = expidus_runtime_compositor_egl_renderer_get_compositor;
   renderer_class->wait_sync = expidus_runtime_compositor_egl_renderer_wait_sync;
+  renderer_class->render = expidus_runtime_compositor_egl_renderer_render;
 
   object_class->constructed = expidus_runtime_compositor_egl_renderer_constructed;
   object_class->dispose = expidus_runtime_compositor_egl_renderer_dispose;

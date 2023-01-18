@@ -37,6 +37,7 @@ static void expidus_runtime_compositor_wlroots_output_frame(struct wl_listener* 
   wlr_renderer_begin(backend->priv->wl_renderer, priv->value->width, priv->value->height);
 
   expidus_runtime_compositor_renderer_wait_sync(backend->priv->renderer);
+  expidus_runtime_compositor_renderer_render(backend->priv->renderer);
   wlr_output_render_software_cursors(priv->value, NULL);
 
   wlr_renderer_end(backend->priv->wl_renderer);
