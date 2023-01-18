@@ -405,5 +405,5 @@ static void expidus_runtime_compositor_egl_renderer_init(ExpidusRuntimeComposito
 }
 
 ExpidusRuntimeCompositorRenderer* expidus_runtime_compositor_egl_renderer_new(ExpidusRuntimeCompositorBackend* backend, EGLDisplay display, EGLContext context) {
-  return g_object_new(EXPIDUS_RUNTIME_COMPOSITOR_TYPE_EGL_RENDERER, "backend", backend, "display", display, "context", context);
+  return g_object_new(EXPIDUS_RUNTIME_COMPOSITOR_TYPE_EGL_RENDERER, "backend", backend, "display", display, "context", context, NULL);
 }
