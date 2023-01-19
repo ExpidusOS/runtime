@@ -8,4 +8,5 @@ include(ExpidusRuntime)
 include(ExpidusRuntimeCompositor)
 
 set(FLUTTER_MANAGED_DIR "${CMAKE_CURRENT_SOURCE_DIR}/flutter")
-add_expidus_compositor(BINARY_NAME "expidus_runtime_example" APPLICATION_ID "com.expidus.runtime")
+set(BINARY_NAME "expidus_runtime_example")
+add_expidus_compositor(BINARY_NAME "${BINARY_NAME}" APPLICATION_ID "com.expidus.runtime")
