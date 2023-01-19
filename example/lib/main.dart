@@ -40,12 +40,15 @@ class _MyAppState extends State<MyApp> {
       theme: _buildTheme(Brightness.dark),
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Plugin example app'),
+          title: const Text('ExpidusOS Runtime Example'),
         ),
         body: Center(
-          child: new Row(
+          child: new Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text('Hello, world'),
+              SizedBox(height: 15),
               CircularProgressIndicator(),
             ],
           ),
