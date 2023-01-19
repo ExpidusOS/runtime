@@ -15,7 +15,7 @@
               filter = name: type:
                 let
                   baseName = baseNameOf (toString name);
-                in baseName != "flake.nix" && baseName != "flake.lock";
+                in baseName != "flake.nix" && baseName != "flake.lock" && baseName != "example";
               src = cleanSource self;
             };
           });
