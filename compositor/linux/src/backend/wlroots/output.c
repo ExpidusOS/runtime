@@ -3,6 +3,7 @@
 #include <wlr/types/wlr_output.h>
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/render/wlr_renderer.h>
+#include "../../compositor-priv.h"
 #include "backend-priv.h"
 #include "output-priv.h"
 

@@ -15,8 +15,6 @@ G_DEFINE_TYPE_WITH_CODE(ExpidusRuntimeCompositorWlrootsBackend, expidus_runtime_
 static void expidus_runtime_compositor_wlroots_destroy_cb(struct wl_listener* listener, void* data) {
   ExpidusRuntimeCompositorWlrootsBackendPrivate* backend_priv = wl_container_of(listener, backend_priv, destroy);
 //  ExpidusRuntimeCompositor* compositor = expidus_runtime_compositor_backend_get_compositor(backend_priv->self);
-
-  g_object_run_dispose(backend_priv->self);
 }
 
 static void expidus_runtime_compositor_wlroots_backend_xdg_surface_new(struct wl_listener* listener, void* data) {

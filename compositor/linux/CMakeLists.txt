@@ -24,6 +24,10 @@ if(NOT WLROOTS_FOUND AND NOT XCB_FOUND)
   message(FATAL_ERROR "Missing either wlroots or xcb, cannot build without a backend library")
 endif()
 
+if(GLES2_FOUND)
+  pkg_check_modules(EGL REQUIRED IMPORTED_TARGET egl)
+endif()
+
 if(WLROOTS_FOUND)
   pkg_check_modules(WAYLAND_SERVER REQUIRED IMPORTED_TARGET wayland-server)
   pkg_check_modules(UDEV REQUIRED IMPORTED_TARGET libudev)
@@ -62,12 +66,13 @@ require_glib(GLIB)
 require_glib(GOBJECT)
 require_glib(GIO)
 
-if(GLES2_FOUND)
-  list(APPEND PLUGIN_REQIURE PkgConfig::GLES2)
+if(GLES2_FOUND AND EGL_FOUND)
+  list(APPEND PLUGIN_REQIURE PkgConfig::GLES2 PkgConfig::EGL)
   find_library(LIBGLES2 NAMES ${GLES2_LIBRARIES} PATHS ${GLES2_LIBRARY_DIRS})
+  find_library(LIBEGL NAMES ${EGL_LIBRARIES} PATHS ${EGL_LIBRARY_DIRS})
 
-  set(PLUGIN_LIBS "${PLUGIN_LIBS}" ${LIBGLES2} ${LIBGLES2}.2.1.0)
-  set(CFLAGS "${CFLAGS}" -DHAS_GLES2=1)
+  set(PLUGIN_LIBS "${PLUGIN_LIBS}" ${LIBGLES2} ${LIBGLES2}.2.1.0 ${LIBEGL})
+  set(CFLAGS "${CFLAGS}" -DHAS_GLES2=1 -DHAS_EGL=1)
   set(EXTRA_SOURCES "${EXTRA_SOURCES}" "src/renderer/egl/error.c" "src/renderer/egl/renderer.c"
     "src/renderer/egl/scene-layer.c" "src/renderer/egl/shader.c")
 endif()
